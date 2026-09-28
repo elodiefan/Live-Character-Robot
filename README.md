@@ -70,6 +70,30 @@ The submitted application will target Ubuntu 24.04 LTS with:
 
 Development may also be performed on macOS. Final setup and run instructions will be tested against the Ubuntu target assumptions.
 
+## Local setup
+
+Python 3.12 is required. From the repository root:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[dev]'
+```
+
+Run the initial application entry point:
+
+```bash
+live-character-robot
+```
+
+Run the checks:
+
+```bash
+pytest
+ruff check .
+```
+
 ## Repository layout
 
 ```text
@@ -77,6 +101,9 @@ Development may also be performed on macOS. Final setup and run instructions wil
 ├── CHALLENGE.md                 # Authoritative challenge brief
 ├── SUBMISSION.md                # Deliverables and evaluation criteria
 ├── README.md
+├── pyproject.toml               # Package metadata and dependencies
+├── src/live_character_robot/    # Application package
+├── tests/                       # Automated tests
 └── robot/
     ├── dummy_lamp_5dof.urdf     # Supplied robot description
     ├── dummy-lamp.png           # Supplied reference image
@@ -84,7 +111,7 @@ Development may also be performed on macOS. Final setup and run instructions wil
         └── lamp_shade.stl       # Supplied lamp shade mesh
 ```
 
-The application source, tests, dependency declarations, audio assets, and technical note will be added as implementation progresses.
+Simulation, perception, character behavior, audio assets, and the technical note will be added as implementation progresses.
 
 ## Development roadmap
 
