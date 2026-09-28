@@ -2,7 +2,7 @@
 
 An expressive, camera-aware character built around a simulated five-degree-of-freedom lamp robot. The project combines visual engagement, spoken interaction, short-term scene memory, goal-directed behavior, motion, light, voice, sound effects, and music into one continuous experience.
 
-> **Project status:** Initial setup. The supplied robot model and challenge files have been imported; the application is not implemented yet.
+> **Project status:** In development. The supplied robot runs in MuJoCo with validated joint limits and its first safe expressive motion.
 
 ![Five-degree-of-freedom lamp robot](robot/dummy-lamp.png)
 
@@ -101,6 +101,19 @@ live-character-robot simulate
 
 Close the viewer window to stop the simulation command.
 
+On macOS, play the first expressive nod animation with MuJoCo's viewer-aware
+Python launcher:
+
+```bash
+.venv/bin/mjpython -m live_character_robot animate nod
+```
+
+On Ubuntu, use the regular project command:
+
+```bash
+live-character-robot animate nod
+```
+
 Run the checks:
 
 ```bash
@@ -131,7 +144,7 @@ Simulation, perception, character behavior, audio assets, and the technical note
 
 - [x] Import and verify the supplied starter files
 - [x] Select and validate the simulation stack
-- [ ] Load the URDF and implement safe motion primitives
+- [x] Load the URDF and implement safe motion primitives
 - [ ] Add camera-based engagement detection
 - [ ] Add speech input and voice output
 - [ ] Add scene observation and short-term memory
