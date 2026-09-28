@@ -87,6 +87,20 @@ Run the initial application entry point:
 live-character-robot
 ```
 
+Inspect the five imported joints and their position limits:
+
+```bash
+live-character-robot inspect-model
+```
+
+Open the lamp in MuJoCo's interactive viewer:
+
+```bash
+live-character-robot simulate
+```
+
+Close the viewer window to stop the simulation command.
+
 Run the checks:
 
 ```bash
@@ -116,7 +130,7 @@ Simulation, perception, character behavior, audio assets, and the technical note
 ## Development roadmap
 
 - [x] Import and verify the supplied starter files
-- [ ] Select and validate the simulation stack
+- [x] Select and validate the simulation stack
 - [ ] Load the URDF and implement safe motion primitives
 - [ ] Add camera-based engagement detection
 - [ ] Add speech input and voice output

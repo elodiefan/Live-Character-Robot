@@ -8,7 +8,9 @@ version = "0.1.0"
 description = "An expressive, camera-aware character built around a simulated 5-DOF lamp robot."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "mujoco>=3.14,<4",
+]
 
 [project.optional-dependencies]
 dev = [
