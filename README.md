@@ -114,6 +114,26 @@ On Ubuntu, use the regular project command:
 live-character-robot animate nod
 ```
 
+Preview local camera engagement detection:
+
+```bash
+live-character-robot camera
+```
+
+Look toward the camera for approximately one second to enter `ENGAGED`. Look
+away or leave the frame for approximately two seconds to return to `IDLE`.
+Press `Q` or `Esc` while the preview is focused to close it. Camera frames are
+processed locally and are not stored or transmitted.
+
+On macOS, the built-in camera and iPhone Continuity Camera may share camera
+index `0`. Choose the MacBook camera in the macOS prompt or disconnect the
+iPhone; the application tolerates a short interruption while macOS switches
+the video source. If the local device order differs, select an index explicitly:
+
+```bash
+live-character-robot camera --index 0
+```
+
 Run the checks:
 
 ```bash
@@ -145,7 +165,7 @@ Simulation, perception, character behavior, audio assets, and the technical note
 - [x] Import and verify the supplied starter files
 - [x] Select and validate the simulation stack
 - [x] Load the URDF and implement safe motion primitives
-- [ ] Add camera-based engagement detection
+- [x] Add camera-based engagement detection
 - [ ] Add speech input and voice output
 - [ ] Add scene observation and short-term memory
 - [ ] Add goal-to-action planning with post-action observation

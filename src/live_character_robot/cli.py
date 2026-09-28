@@ -6,6 +6,7 @@ import argparse
 from collections.abc import Sequence
 
 from live_character_robot import __version__
+from live_character_robot.camera import run_engagement_camera
 from live_character_robot.motion import NOD_POSES, pose_vector
 from live_character_robot.simulator import (
     animate_poses,
@@ -31,6 +32,15 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("simulate", help="Open the robot in the MuJoCo viewer.")
     animate_parser = subparsers.add_parser("animate", help="Play an expressive motion.")
     animate_parser.add_argument("motion", choices=("nod",))
+    camera_parser = subparsers.add_parser(
+        "camera", help="Preview frontal-face engagement detection."
+    )
+    camera_parser.add_argument(
+        "--index",
+        type=int,
+        default=0,
+        help="Camera device index (default: 0).",
+    )
     return parser
 
 
@@ -55,6 +65,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         specs = joint_specs(model)
         poses = tuple(pose_vector(pose, specs) for pose in NOD_POSES)
         animate_poses(model, poses)
+        return 0
+
+    if args.command == "camera":
+        run_engagement_camera(args.index)
         return 0
 
     print("Live Character Robot scaffold is ready.")
