@@ -9,8 +9,10 @@ description = "An expressive, camera-aware character built around a simulated 5-
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "faster-whisper>=1.2.1,<2",
     "mujoco>=3.14,<4",
     "opencv-python>=4.12,<5",
+    "sounddevice>=0.5.6,<1",
 ]
 
 [project.optional-dependencies]

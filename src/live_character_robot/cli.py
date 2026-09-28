@@ -4,8 +4,15 @@ from __future__ import annotations
 
 import argparse
 from collections.abc import Sequence
+from pathlib import Path
 
 from live_character_robot import __version__
+from live_character_robot.audio import (
+    describe_audio_devices,
+    play_audio,
+    record_microphone,
+    write_wav,
+)
 from live_character_robot.camera import run_engagement_camera
 from live_character_robot.motion import NOD_POSES, pose_vector
 from live_character_robot.simulator import (
@@ -14,6 +21,7 @@ from live_character_robot.simulator import (
     launch_simulator,
     load_robot_model,
 )
+from live_character_robot.transcription import transcribe_file
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,6 +48,34 @@ def build_parser() -> argparse.ArgumentParser:
         type=int,
         default=0,
         help="Camera device index (default: 0).",
+    )
+    subparsers.add_parser("audio-devices", help="List microphone and speaker devices.")
+    microphone_parser = subparsers.add_parser(
+        "microphone", help="Record a bounded microphone test clip."
+    )
+    microphone_parser.add_argument("--seconds", type=float, default=5.0)
+    microphone_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("recordings/microphone-test.wav"),
+    )
+    microphone_parser.add_argument(
+        "--playback",
+        action="store_true",
+        help="Play the recorded clip through the default speaker.",
+    )
+    transcribe_parser = subparsers.add_parser(
+        "transcribe", help="Transcribe a completed local audio file."
+    )
+    transcribe_parser.add_argument("audio_file", type=Path)
+    listen_parser = subparsers.add_parser(
+        "listen", help="Record a bounded utterance and transcribe it."
+    )
+    listen_parser.add_argument("--seconds", type=float, default=5.0)
+    listen_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("recordings/latest-utterance.wav"),
     )
     return parser
 
@@ -69,6 +105,32 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.command == "camera":
         run_engagement_camera(args.index)
+        return 0
+
+    if args.command == "audio-devices":
+        print(describe_audio_devices())
+        return 0
+
+    if args.command == "microphone":
+        print(f"Recording for {args.seconds:g} seconds...")
+        samples = record_microphone(args.seconds)
+        write_wav(args.output, samples)
+        print(f"Saved recording to {args.output}")
+        if args.playback:
+            print("Playing recording...")
+            play_audio(samples)
+        return 0
+
+    if args.command == "transcribe":
+        print(f"Transcript: {transcribe_file(args.audio_file)}")
+        return 0
+
+    if args.command == "listen":
+        print(f"Listening for {args.seconds:g} seconds...")
+        samples = record_microphone(args.seconds)
+        write_wav(args.output, samples)
+        print("Transcribing bounded audio clip...")
+        print(f"You said: {transcribe_file(args.output)}")
         return 0
 
     print("Live Character Robot scaffold is ready.")

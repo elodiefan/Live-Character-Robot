@@ -134,6 +134,36 @@ the video source. If the local device order differs, select an index explicitly:
 live-character-robot camera --index 0
 ```
 
+List the available microphone and speaker devices:
+
+```bash
+live-character-robot audio-devices
+```
+
+Record five seconds from the default microphone and play the clip back:
+
+```bash
+live-character-robot microphone --seconds 5 --playback
+```
+
+The test clip is saved under `recordings/`, which is excluded from Git.
+
+Transcribe an existing recording locally:
+
+```bash
+live-character-robot transcribe recordings/microphone-test.wav
+```
+
+Or record and transcribe one bounded five-second utterance:
+
+```bash
+live-character-robot listen --seconds 5
+```
+
+The first transcription downloads the English `base.en` speech model. Later
+runs use the local cache and can work offline. Audio remains on the laptop, and
+local recordings under `recordings/` are excluded from Git.
+
 Run the checks:
 
 ```bash
