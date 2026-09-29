@@ -2,7 +2,7 @@
 
 An expressive, camera-aware character built around a simulated five-degree-of-freedom lamp robot. The project combines visual engagement, spoken interaction, short-term scene memory, goal-directed behavior, motion, light, voice, sound effects, and music into one continuous experience.
 
-> **Project status:** In development. The supplied robot runs in MuJoCo with validated joint limits and its first safe expressive motion.
+> **Project status:** Functional end-to-end prototype. Final Ubuntu hardware validation remains.
 
 ![Five-degree-of-freedom lamp robot](robot/dummy-lamp.png)
 
@@ -19,9 +19,9 @@ The planned demonstration follows one coherent interaction:
 7. The lamp observes the scene again before reporting whether the goal is complete.
 8. When the person looks away, the lamp disengages and returns to idle.
 
-## Proposed architecture
+## Architecture
 
-The implementation will use explicit component boundaries and a small character state machine. Perception and language components may recommend actions, but a deterministic controller will validate joint limits and own body execution.
+The implementation uses explicit component boundaries and a small character controller. Perception and language components recommend bounded actions, while a deterministic controller validates joint limits and owns body execution.
 
 ```mermaid
 flowchart LR
@@ -36,7 +36,7 @@ flowchart LR
     simulator --> controller
 ```
 
-The initial action vocabulary will be intentionally small, for example:
+The action vocabulary is intentionally small:
 
 - `LOOK_AT`, `LOOK_LEFT`, and `LOOK_RIGHT`
 - `NOD` and `RETURN_TO_IDLE`
@@ -250,7 +250,9 @@ ruff check .
         └── lamp_shade.stl       # Supplied lamp shade mesh
 ```
 
-Simulation, perception, character behavior, audio assets, and the technical note will be added as implementation progresses.
+See [UBUNTU_SETUP.md](UBUNTU_SETUP.md) for target deployment and demo steps and
+[TECHNICAL_NOTE.md](TECHNICAL_NOTE.md) for architecture, measurements, choices,
+and limitations.
 
 ## Development roadmap
 
@@ -258,14 +260,14 @@ Simulation, perception, character behavior, audio assets, and the technical note
 - [x] Select and validate the simulation stack
 - [x] Load the URDF and implement safe motion primitives
 - [x] Add camera-based engagement detection
-- [ ] Add speech input and voice output
-- [ ] Add scene observation and short-term memory
-- [ ] Add goal-to-action planning with post-action observation
-- [ ] Coordinate motion, light, voice, sound effects, and music
-- [ ] Add graceful offline and service-error behavior
-- [ ] Measure engagement reliability, latency, CPU, and memory use
+- [x] Add speech input and voice output
+- [x] Add scene observation and short-term memory
+- [x] Add goal-to-action planning with post-action observation
+- [x] Coordinate motion, light, voice, sound effects, and music
+- [x] Add graceful offline and service-error behavior
+- [x] Measure engagement reliability, latency, CPU, and memory use
 - [ ] Test setup on the Ubuntu target
-- [ ] Complete the two-page technical note
+- [x] Complete the two-page technical note
 
 ## Challenge documents
 
