@@ -181,6 +181,12 @@ The session listens in bounded five-second turns. Close the viewer or press
 offline spoken response through macOS `say`. On Ubuntu, install `espeak-ng` to
 enable the same local voice output.
 
+To demonstrate short-term scene memory, hold a bright red, orange, yellow,
+green, blue, or purple object near the center of the camera and say `remember
+this object`. Keep it visible while the camera captures a frame. Later, ask
+`what color was the object?` The compact color observation remains in memory
+only for the current session; camera frames are neither saved nor transmitted.
+
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
 local recordings under `recordings/` are excluded from Git.

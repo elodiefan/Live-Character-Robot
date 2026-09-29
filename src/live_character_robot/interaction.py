@@ -9,6 +9,11 @@ import mujoco.viewer
 
 from live_character_robot.audio import record_microphone, write_wav
 from live_character_robot.motion import MOTIONS, REST_POSE, pose_vector
+from live_character_robot.scene import (
+    SceneMemory,
+    capture_camera_frame,
+    observe_colored_object,
+)
 from live_character_robot.simulator import (
     animate_targets,
     joint_specs,
@@ -16,7 +21,10 @@ from live_character_robot.simulator import (
 )
 from live_character_robot.transcription import transcribe_file
 from live_character_robot.voice import MOTION_RESPONSES, start_speech
-from live_character_robot.voice_commands import resolve_voice_command
+from live_character_robot.voice_commands import (
+    resolve_scene_command,
+    resolve_voice_command,
+)
 
 
 def run_interaction_session(
@@ -31,6 +39,7 @@ def run_interaction_session(
     data = mujoco.MjData(model)
     data.qpos[:] = rest
     mujoco.mj_forward(model, data)
+    memory = SceneMemory()
 
     print("Continuous session started. Close the viewer or press Ctrl+C to stop.")
     try:
@@ -44,16 +53,37 @@ def run_interaction_session(
 
                 transcript = transcribe_file(recording_path)
                 print(f"You said: {transcript}")
-                motion = resolve_voice_command(transcript)
+                scene_command = resolve_scene_command(transcript)
+                response = None
+                motion = None
+                if scene_command == "remember-object":
+                    print("Observing the object in the center of the camera...")
+                    observation = observe_colored_object(capture_camera_frame())
+                    if observation is None:
+                        response = "I could not see a clearly colored object."
+                    else:
+                        memory.remember(observation)
+                        response = f"I remember a {observation.color} object."
+                        motion = "nod"
+                elif scene_command == "recall-color":
+                    response = memory.color_answer()
+                    motion = "nod"
+                else:
+                    motion = resolve_voice_command(transcript)
+
                 if motion is None:
-                    print("No movement command recognized; the lamp will stay still.")
+                    if response is None:
+                        print("No movement command recognized; the lamp will stay still.")
+                        continue
+                    print(f"Lamp response: {response}")
+                    start_speech(response).wait()
                     continue
 
                 print(f"Lamp response: {motion}")
                 targets = tuple(
                     pose_vector(pose, specs) for pose in MOTIONS[motion]
                 )
-                speech = start_speech(MOTION_RESPONSES[motion])
+                speech = start_speech(response or MOTION_RESPONSES[motion])
                 viewer_open = animate_targets(model, data, viewer, targets)
                 speech.wait()
                 if not viewer_open:
