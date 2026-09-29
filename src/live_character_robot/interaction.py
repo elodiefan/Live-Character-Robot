@@ -6,28 +6,31 @@ from pathlib import Path
 
 import mujoco
 import mujoco.viewer
+import sounddevice as sd
 
 from live_character_robot.audio import record_microphone, write_wav
 from live_character_robot.effects import (
     acknowledgment_sound,
-    start_audio,
     success_music,
-    wait_for_audio,
 )
 from live_character_robot.goals import parse_scene_goal, plan_scene_goal
 from live_character_robot.motion import MOTIONS, REST_POSE, pose_vector
-from live_character_robot.scene import (
-    SceneMemory,
-    capture_camera_frame,
-    observe_colored_object,
+from live_character_robot.reliability import (
+    observe_safely,
+    play_audio_safely,
+    start_audio_safely,
+    start_speech_safely,
+    transcribe_safely,
+    wait_for_audio_safely,
+    wait_for_speech,
 )
+from live_character_robot.scene import SceneMemory
 from live_character_robot.simulator import (
     animate_targets,
     joint_specs,
     load_robot_model,
 )
-from live_character_robot.transcription import transcribe_file
-from live_character_robot.voice import MOTION_RESPONSES, start_speech
+from live_character_robot.voice import MOTION_RESPONSES
 from live_character_robot.voice_commands import (
     resolve_scene_command,
     resolve_voice_command,
@@ -53,18 +56,23 @@ def run_interaction_session(
         with mujoco.viewer.launch_passive(model, data) as viewer:
             while viewer.is_running():
                 print(f"Listening for {duration_seconds:g} seconds...")
-                samples = record_microphone(duration_seconds)
-                write_wav(recording_path, samples)
+                try:
+                    samples = record_microphone(duration_seconds)
+                    write_wav(recording_path, samples)
+                except (OSError, RuntimeError, sd.PortAudioError) as error:
+                    print(f"Microphone unavailable; ending session: {error}")
+                    break
                 if not viewer.is_running():
                     break
 
-                transcript = transcribe_file(recording_path)
+                transcript = transcribe_safely(recording_path)
+                if transcript is None:
+                    continue
                 print(f"You said: {transcript}")
                 goal = parse_scene_goal(transcript)
                 if goal is not None:
                     print(f"Looking for a {goal.target_color} object...")
-                    observation = observe_colored_object(
-                        capture_camera_frame(),
+                    observation = observe_safely(
                         center_only=False,
                         target_color=goal.target_color,
                     )
@@ -72,7 +80,7 @@ def run_interaction_session(
                     if not actions:
                         response = f"I could not find a {goal.target_color} object."
                         print(f"Lamp response: {response}")
-                        start_speech(response).wait()
+                        wait_for_speech(start_speech_safely(response))
                         continue
 
                     position_phrase = (
@@ -84,7 +92,7 @@ def run_interaction_session(
                         f"I found the {goal.target_color} object {position_phrase}."
                     )
                     print(f"Plan: {' -> '.join(actions)}")
-                    speech = start_speech(response)
+                    speech = start_speech_safely(response)
                     viewer_open = True
                     for action in actions:
                         targets = tuple(
@@ -93,13 +101,12 @@ def run_interaction_session(
                         viewer_open = animate_targets(model, data, viewer, targets)
                         if not viewer_open:
                             break
-                    speech.wait()
+                    wait_for_speech(speech)
                     if not viewer_open:
                         break
 
                     print("Observing the scene again before completion...")
-                    final_observation = observe_colored_object(
-                        capture_camera_frame(),
+                    final_observation = observe_safely(
                         center_only=False,
                         target_color=goal.target_color,
                     )
@@ -111,9 +118,9 @@ def run_interaction_session(
                             "is still visible."
                         )
                     print(f"Lamp response: {completion}")
-                    start_speech(completion).wait()
+                    wait_for_speech(start_speech_safely(completion))
                     if final_observation is not None:
-                        start_audio(success_music())
+                        audio_started = start_audio_safely(success_music())
                         celebration_targets = tuple(
                             pose_vector(pose, specs) for pose in MOTIONS["nod"]
                         )
@@ -124,7 +131,7 @@ def run_interaction_session(
                             celebration_targets,
                             light_pulse=True,
                         )
-                        wait_for_audio()
+                        wait_for_audio_safely(audio_started)
                         if not viewer_open:
                             break
                     continue
@@ -134,15 +141,14 @@ def run_interaction_session(
                 motion = None
                 if scene_command == "remember-object":
                     print("Observing the object in the center of the camera...")
-                    observation = observe_colored_object(capture_camera_frame())
+                    observation = observe_safely()
                     if observation is None:
                         response = "I could not see a clearly colored object."
                     else:
                         memory.remember(observation)
                         response = f"I remember a {observation.color} object."
                         motion = "nod"
-                        start_audio(acknowledgment_sound())
-                        wait_for_audio()
+                        play_audio_safely(acknowledgment_sound())
                 elif scene_command == "recall-color":
                     response = memory.color_answer()
                     motion = "nod"
@@ -154,16 +160,16 @@ def run_interaction_session(
                         print("No movement command recognized; the lamp will stay still.")
                         continue
                     print(f"Lamp response: {response}")
-                    start_speech(response).wait()
+                    wait_for_speech(start_speech_safely(response))
                     continue
 
                 print(f"Lamp response: {motion}")
                 targets = tuple(
                     pose_vector(pose, specs) for pose in MOTIONS[motion]
                 )
-                speech = start_speech(response or MOTION_RESPONSES[motion])
+                speech = start_speech_safely(response or MOTION_RESPONSES[motion])
                 viewer_open = animate_targets(model, data, viewer, targets)
-                speech.wait()
+                wait_for_speech(speech)
                 if not viewer_open:
                     break
     except KeyboardInterrupt:

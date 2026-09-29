@@ -200,6 +200,11 @@ goal completion triggers a brief locally synthesized musical cue while the lamp
 shade pulses warm yellow. These effects are generated at runtime and require no
 downloaded media or cloud service.
 
+The continuous controller treats silence as an empty turn rather than an
+error. Camera failures produce an honest unavailable observation, missing
+voice or character-audio output does not block motion, and microphone failure
+ends the session cleanly with an actionable terminal message.
+
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
 local recordings under `recordings/` are excluded from Git.
