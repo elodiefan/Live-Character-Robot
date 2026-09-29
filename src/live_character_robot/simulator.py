@@ -94,21 +94,36 @@ def animate_targets(
     *,
     frames_per_transition: int = 36,
     frames_per_second: float = 60.0,
+    light_pulse: bool = False,
 ) -> bool:
     """Animate targets in an existing viewer and report whether it remains open."""
     from live_character_robot.motion import smooth_transition
 
     frame_period = 1.0 / frames_per_second
-    for target in targets:
-        start = data.qpos.copy()
-        for frame in smooth_transition(start, target, frames_per_transition):
-            if not viewer.is_running():
-                return False
-            frame_start = time.monotonic()
-            data.qpos[:] = frame
-            mujoco.mj_forward(model, data)
-            viewer.sync()
-            remaining = frame_period - (time.monotonic() - frame_start)
-            if remaining > 0:
-                time.sleep(remaining)
-    return viewer.is_running()
+    shade_geom_id = model.ngeom - 1
+    original_shade_color = model.geom_rgba[shade_geom_id].copy()
+    try:
+        for target in targets:
+            start = data.qpos.copy()
+            frames = smooth_transition(start, target, frames_per_transition)
+            for frame_index, frame in enumerate(frames):
+                if not viewer.is_running():
+                    return False
+                frame_start = time.monotonic()
+                data.qpos[:] = frame
+                if light_pulse:
+                    pulse = np.sin(np.pi * frame_index / (frames_per_transition - 1))
+                    model.geom_rgba[shade_geom_id] = (
+                        1.0,
+                        0.72 + 0.23 * pulse,
+                        0.18 + 0.58 * pulse,
+                        1.0,
+                    )
+                mujoco.mj_forward(model, data)
+                viewer.sync()
+                remaining = frame_period - (time.monotonic() - frame_start)
+                if remaining > 0:
+                    time.sleep(remaining)
+        return viewer.is_running()
+    finally:
+        model.geom_rgba[shade_geom_id] = original_shade_color

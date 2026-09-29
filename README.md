@@ -195,6 +195,11 @@ camera observation before reporting completion. Keep the object visible until
 the final spoken confirmation. Left and right are reported from the character's
 camera perspective, so they are opposite the facing person's sides.
 
+Successful object memory plays a short synthesized acknowledgment. A verified
+goal completion triggers a brief locally synthesized musical cue while the lamp
+shade pulses warm yellow. These effects are generated at runtime and require no
+downloaded media or cloud service.
+
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
 local recordings under `recordings/` are excluded from Git.

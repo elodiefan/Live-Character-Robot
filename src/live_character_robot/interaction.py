@@ -8,6 +8,12 @@ import mujoco
 import mujoco.viewer
 
 from live_character_robot.audio import record_microphone, write_wav
+from live_character_robot.effects import (
+    acknowledgment_sound,
+    start_audio,
+    success_music,
+    wait_for_audio,
+)
 from live_character_robot.goals import parse_scene_goal, plan_scene_goal
 from live_character_robot.motion import MOTIONS, REST_POSE, pose_vector
 from live_character_robot.scene import (
@@ -106,6 +112,21 @@ def run_interaction_session(
                         )
                     print(f"Lamp response: {completion}")
                     start_speech(completion).wait()
+                    if final_observation is not None:
+                        start_audio(success_music())
+                        celebration_targets = tuple(
+                            pose_vector(pose, specs) for pose in MOTIONS["nod"]
+                        )
+                        viewer_open = animate_targets(
+                            model,
+                            data,
+                            viewer,
+                            celebration_targets,
+                            light_pulse=True,
+                        )
+                        wait_for_audio()
+                        if not viewer_open:
+                            break
                     continue
 
                 scene_command = resolve_scene_command(transcript)
@@ -120,6 +141,8 @@ def run_interaction_session(
                         memory.remember(observation)
                         response = f"I remember a {observation.color} object."
                         motion = "nod"
+                        start_audio(acknowledgment_sound())
+                        wait_for_audio()
                 elif scene_command == "recall-color":
                     response = memory.color_answer()
                     motion = "nod"
