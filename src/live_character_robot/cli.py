@@ -14,6 +14,7 @@ from live_character_robot.audio import (
     write_wav,
 )
 from live_character_robot.camera import run_engagement_camera
+from live_character_robot.interaction import run_interaction_session
 from live_character_robot.motion import MOTIONS, pose_vector
 from live_character_robot.simulator import (
     animate_poses,
@@ -83,6 +84,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     react_parser.add_argument("--seconds", type=float, default=5.0)
     react_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("recordings/latest-command.wav"),
+    )
+    session_parser = subparsers.add_parser(
+        "session", help="Keep one viewer open and react to multiple commands."
+    )
+    session_parser.add_argument("--seconds", type=float, default=5.0)
+    session_parser.add_argument(
         "--output",
         type=Path,
         default=Path("recordings/latest-command.wav"),
@@ -158,6 +168,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         specs = joint_specs(model)
         poses = tuple(pose_vector(pose, specs) for pose in MOTIONS[motion])
         animate_poses(model, poses, hold_seconds=1.5)
+        return 0
+
+    if args.command == "session":
+        run_interaction_session(args.seconds, recording_path=args.output)
         return 0
 
     print("Live Character Robot scaffold is ready.")

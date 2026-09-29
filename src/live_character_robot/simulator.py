@@ -6,6 +6,7 @@ import time
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import mujoco
 import mujoco.viewer
@@ -57,8 +58,6 @@ def animate_poses(
     hold_seconds: float | None = None,
 ) -> None:
     """Animate each target once, then hold briefly or until viewer closure."""
-    from live_character_robot.motion import smooth_transition
-
     if len(poses) < 2:
         raise ValueError("An animation needs at least two poses")
 
@@ -68,18 +67,14 @@ def animate_poses(
     frame_period = 1.0 / frames_per_second
 
     with mujoco.viewer.launch_passive(model, data) as viewer:
-        for target in poses[1:]:
-            start = data.qpos.copy()
-            for frame in smooth_transition(start, target, frames_per_transition):
-                if not viewer.is_running():
-                    return
-                frame_start = time.monotonic()
-                data.qpos[:] = frame
-                mujoco.mj_forward(model, data)
-                viewer.sync()
-                remaining = frame_period - (time.monotonic() - frame_start)
-                if remaining > 0:
-                    time.sleep(remaining)
+        animate_targets(
+            model,
+            data,
+            viewer,
+            poses[1:],
+            frames_per_transition=frames_per_transition,
+            frames_per_second=frames_per_second,
+        )
 
         hold_deadline = (
             None if hold_seconds is None else time.monotonic() + hold_seconds
@@ -89,3 +84,31 @@ def animate_poses(
         ):
             viewer.sync()
             time.sleep(frame_period)
+
+
+def animate_targets(
+    model: mujoco.MjModel,
+    data: mujoco.MjData,
+    viewer: Any,
+    targets: Sequence[NDArray[np.float64]],
+    *,
+    frames_per_transition: int = 36,
+    frames_per_second: float = 60.0,
+) -> bool:
+    """Animate targets in an existing viewer and report whether it remains open."""
+    from live_character_robot.motion import smooth_transition
+
+    frame_period = 1.0 / frames_per_second
+    for target in targets:
+        start = data.qpos.copy()
+        for frame in smooth_transition(start, target, frames_per_transition):
+            if not viewer.is_running():
+                return False
+            frame_start = time.monotonic()
+            data.qpos[:] = frame
+            mujoco.mj_forward(model, data)
+            viewer.sync()
+            remaining = frame_period - (time.monotonic() - frame_start)
+            if remaining > 0:
+                time.sleep(remaining)
+    return viewer.is_running()

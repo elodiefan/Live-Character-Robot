@@ -170,6 +170,15 @@ Try saying `hello`, `no`, `look up`, or `go to sleep`. Speech is matched only
 to predefined, joint-limited motions. If no phrase is recognized, the lamp
 stays still. The MuJoCo viewer closes shortly after the reaction finishes.
 
+Keep one simulator window open and respond to multiple spoken commands:
+
+```bash
+.venv/bin/mjpython -m live_character_robot session --seconds 5
+```
+
+The session listens in bounded five-second turns. Close the viewer or press
+`Ctrl+C` in the terminal to stop.
+
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
 local recordings under `recordings/` are excluded from Git.
