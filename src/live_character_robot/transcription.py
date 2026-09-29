@@ -9,12 +9,18 @@ from typing import Any
 from faster_whisper import WhisperModel
 
 TRANSCRIPTION_MODEL = "base.en"
+TRANSCRIPTION_CPU_THREADS = 2
 
 
 @lru_cache(maxsize=1)
 def load_transcription_model() -> WhisperModel:
     """Load and cache the CPU-optimized English transcription model."""
-    return WhisperModel(TRANSCRIPTION_MODEL, device="cpu", compute_type="int8")
+    return WhisperModel(
+        TRANSCRIPTION_MODEL,
+        device="cpu",
+        compute_type="int8",
+        cpu_threads=TRANSCRIPTION_CPU_THREADS,
+    )
 
 
 def transcribe_file(audio_path: Path, *, model: Any | None = None) -> str:

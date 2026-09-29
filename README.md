@@ -247,10 +247,11 @@ camera or fully turning away. Machine-readable results are saved under
 ### Development measurement interpretation
 
 On the measured Apple Silicon development machine, warm speech-to-intent
-latency was approximately `0.42 s`; the first run took `1.156 s` while local
-components initialized. Mean latency across three runs was `0.6683 s`. Peak
-memory was `529.9 MiB`, and CPU use averaged roughly `2.4` cores. These results
-fit the four-core, 8 GB target on paper, but must still be verified on the
+latency was `0.507-0.570 s`; the first run took `1.207 s` while local components
+initialized. Mean latency across three runs was `0.7612 s`. Peak memory was
+`504.1 MiB`, and CPU use averaged roughly `1.4` cores with transcription capped
+at two CPU threads. These results fit the four-core, 8 GB target on paper, but
+must still be verified on the
 actual Ubuntu laptop. The guided engagement test achieved `100%` across 360
 frames and three trials; this is a small controlled result, not a claim of
 general reliability across people, lighting, cameras, or environments.

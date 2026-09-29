@@ -230,10 +230,10 @@ def build() -> None:
         Table(
             [
                 ["Metric", "Result", "Method"],
-                ["Speech-to-intent latency", "0.6683 s mean", "3 runs: 1.1560 / 0.4312 / 0.4177 s"],
-                ["Warm speech-to-intent", "about 0.42 s", "Runs after initial local model load"],
-                ["Peak resident memory", "529.9 MiB", "Process ru_maxrss"],
-                ["CPU use", "241.3% of one core", "4.8379 CPU s; about 2.4 cores average"],
+                ["Speech-to-intent latency", "0.7612 s mean", "3 runs: 1.2071 / 0.5071 / 0.5695 s"],
+                ["Warm speech-to-intent", "0.507-0.570 s", "Runs after initial local model load"],
+                ["Peak resident memory", "504.1 MiB", "Process ru_maxrss"],
+                ["CPU use", "143.1% of one core", "3.2677 CPU s; about 1.4 cores average"],
                 ["Engagement accuracy", "100.0%", "360 frames across 3 guided trials"],
             ],
             colWidths=[1.55 * inch, 1.42 * inch, 3.95 * inch],

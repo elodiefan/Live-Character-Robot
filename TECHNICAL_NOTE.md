@@ -46,10 +46,11 @@ Python 3.12, four CPU cores, and 8 GB RAM; development validation used macOS.
 ## Measurements
 
 On an Apple Silicon Mac running macOS 14.4.1, three runs over the same recorded
-utterance produced speech-to-intent latencies of 1.1560, 0.4312, and 0.4177 s
-(mean 0.6683 s; warm runs approximately 0.42 s). Peak resident memory was
-529.9 MiB. CPU time was 4.8379 s over the measurement, averaging 241.3% of one
-core (about 2.4 cores). The transcript and resolved intent were correct in all
+utterance produced speech-to-intent latencies of 1.2071, 0.5071, and 0.5695 s
+(mean 0.7612 s; warm runs 0.507-0.570 s). Peak resident memory was 504.1 MiB.
+CPU time was 3.2677 s over the measurement, averaging 143.1% of one core
+(about 1.4 cores) with transcription capped at two CPU threads. The transcript
+and resolved intent were correct in all
 three runs.
 
 Engagement reliability was measured in three guided trials with clear glasses:
