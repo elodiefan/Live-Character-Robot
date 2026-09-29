@@ -54,8 +54,9 @@ def animate_poses(
     *,
     frames_per_transition: int = 36,
     frames_per_second: float = 60.0,
+    hold_seconds: float | None = None,
 ) -> None:
-    """Animate pose targets until the viewer is closed."""
+    """Animate each target once, then hold briefly or until viewer closure."""
     from live_character_robot.motion import smooth_transition
 
     if len(poses) < 2:
@@ -67,16 +68,24 @@ def animate_poses(
     frame_period = 1.0 / frames_per_second
 
     with mujoco.viewer.launch_passive(model, data) as viewer:
-        while viewer.is_running():
-            for target in poses[1:]:
-                start = data.qpos.copy()
-                for frame in smooth_transition(start, target, frames_per_transition):
-                    if not viewer.is_running():
-                        return
-                    frame_start = time.monotonic()
-                    data.qpos[:] = frame
-                    mujoco.mj_forward(model, data)
-                    viewer.sync()
-                    remaining = frame_period - (time.monotonic() - frame_start)
-                    if remaining > 0:
-                        time.sleep(remaining)
+        for target in poses[1:]:
+            start = data.qpos.copy()
+            for frame in smooth_transition(start, target, frames_per_transition):
+                if not viewer.is_running():
+                    return
+                frame_start = time.monotonic()
+                data.qpos[:] = frame
+                mujoco.mj_forward(model, data)
+                viewer.sync()
+                remaining = frame_period - (time.monotonic() - frame_start)
+                if remaining > 0:
+                    time.sleep(remaining)
+
+        hold_deadline = (
+            None if hold_seconds is None else time.monotonic() + hold_seconds
+        )
+        while viewer.is_running() and (
+            hold_deadline is None or time.monotonic() < hold_deadline
+        ):
+            viewer.sync()
+            time.sleep(frame_period)

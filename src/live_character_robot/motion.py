@@ -26,6 +26,37 @@ NOD_POSES: tuple[Pose, ...] = (
     REST_POSE,
 )
 
+SHAKE_POSES: tuple[Pose, ...] = (
+    REST_POSE,
+    {**REST_POSE, "neck_yaw_joint": 0.65},
+    {**REST_POSE, "neck_yaw_joint": -0.65},
+    {**REST_POSE, "neck_yaw_joint": 0.45},
+    {**REST_POSE, "neck_yaw_joint": -0.45},
+    REST_POSE,
+)
+
+LOOK_UP_POSES: tuple[Pose, ...] = (
+    REST_POSE,
+    {**REST_POSE, "head_pitch_joint": -0.55},
+)
+
+SLEEP_POSES: tuple[Pose, ...] = (
+    REST_POSE,
+    {
+        **REST_POSE,
+        "shoulder_pitch_joint": -0.25,
+        "elbow_pitch_joint": -1.55,
+        "head_pitch_joint": -0.65,
+    },
+)
+
+MOTIONS: dict[str, tuple[Pose, ...]] = {
+    "look-up": LOOK_UP_POSES,
+    "nod": NOD_POSES,
+    "shake": SHAKE_POSES,
+    "sleep": SLEEP_POSES,
+}
+
 
 def pose_vector(pose: Pose, specs: Sequence[JointSpec]) -> NDArray[np.float64]:
     """Convert a named pose to an ordered vector, clamped to safe joint limits."""

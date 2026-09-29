@@ -160,6 +160,16 @@ Or record and transcribe one bounded five-second utterance:
 live-character-robot listen --seconds 5
 ```
 
+Make the simulated lamp respond to a bounded spoken command on macOS:
+
+```bash
+.venv/bin/mjpython -m live_character_robot react --seconds 5
+```
+
+Try saying `hello`, `no`, `look up`, or `go to sleep`. Speech is matched only
+to predefined, joint-limited motions. If no phrase is recognized, the lamp
+stays still. The MuJoCo viewer closes shortly after the reaction finishes.
+
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
 local recordings under `recordings/` are excluded from Git.
