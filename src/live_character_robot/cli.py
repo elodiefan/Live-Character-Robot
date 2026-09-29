@@ -15,6 +15,11 @@ from live_character_robot.audio import (
 )
 from live_character_robot.camera import run_engagement_camera
 from live_character_robot.interaction import run_interaction_session
+from live_character_robot.measurements import (
+    format_results,
+    measure_engagement,
+    measure_runtime,
+)
 from live_character_robot.motion import MOTIONS, pose_vector
 from live_character_robot.simulator import (
     animate_poses,
@@ -98,6 +103,27 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("recordings/latest-command.wav"),
     )
+    runtime_parser = subparsers.add_parser(
+        "measure-runtime", help="Measure local speech-to-intent latency and resources."
+    )
+    runtime_parser.add_argument("audio_file", type=Path)
+    runtime_parser.add_argument("--iterations", type=int, default=3)
+    runtime_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("measurements/runtime.json"),
+    )
+    engagement_parser = subparsers.add_parser(
+        "measure-engagement", help="Run guided camera engagement reliability trials."
+    )
+    engagement_parser.add_argument("--camera-index", type=int, default=0)
+    engagement_parser.add_argument("--trials", type=int, default=3)
+    engagement_parser.add_argument("--seconds-per-state", type=float, default=2.0)
+    engagement_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("measurements/engagement.json"),
+    )
     return parser
 
 
@@ -175,6 +201,27 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.command == "session":
         run_interaction_session(args.seconds, recording_path=args.output)
+        return 0
+
+    if args.command == "measure-runtime":
+        results = measure_runtime(
+            args.audio_file,
+            iterations=args.iterations,
+            output_path=args.output,
+        )
+        print(format_results(results))
+        print(f"Saved results to {args.output}")
+        return 0
+
+    if args.command == "measure-engagement":
+        results = measure_engagement(
+            camera_index=args.camera_index,
+            trials=args.trials,
+            seconds_per_state=args.seconds_per_state,
+            output_path=args.output,
+        )
+        print(format_results(results))
+        print(f"Saved results to {args.output}")
         return 0
 
     print("Live Character Robot scaffold is ready.")

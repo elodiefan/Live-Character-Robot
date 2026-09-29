@@ -205,6 +205,23 @@ error. Camera failures produce an honest unavailable observation, missing
 voice or character-audio output does not block motion, and microphone failure
 ends the session cleanly with an actionable terminal message.
 
+Measure warm local speech-to-intent latency, process CPU time, and peak memory
+using an existing recording:
+
+```bash
+live-character-robot measure-runtime recordings/microphone-test.wav
+```
+
+Run three guided camera trials for engagement reliability:
+
+```bash
+live-character-robot measure-engagement --trials 3
+```
+
+Follow each terminal prompt and press Enter only after looking directly at the
+camera or fully turning away. Machine-readable results are saved under
+`measurements/` for inclusion in the technical note.
+
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
 local recordings under `recordings/` are excluded from Git.
