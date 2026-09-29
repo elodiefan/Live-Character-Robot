@@ -177,7 +177,9 @@ Keep one simulator window open and respond to multiple spoken commands:
 ```
 
 The session listens in bounded five-second turns. Close the viewer or press
-`Ctrl+C` in the terminal to stop.
+`Ctrl+C` in the terminal to stop. Recognized commands also receive a short
+offline spoken response through macOS `say`. On Ubuntu, install `espeak-ng` to
+enable the same local voice output.
 
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and

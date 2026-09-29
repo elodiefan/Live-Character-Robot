@@ -15,6 +15,7 @@ from live_character_robot.simulator import (
     load_robot_model,
 )
 from live_character_robot.transcription import transcribe_file
+from live_character_robot.voice import MOTION_RESPONSES, start_speech
 from live_character_robot.voice_commands import resolve_voice_command
 
 
@@ -52,7 +53,10 @@ def run_interaction_session(
                 targets = tuple(
                     pose_vector(pose, specs) for pose in MOTIONS[motion]
                 )
-                if not animate_targets(model, data, viewer, targets):
+                speech = start_speech(MOTION_RESPONSES[motion])
+                viewer_open = animate_targets(model, data, viewer, targets)
+                speech.wait()
+                if not viewer_open:
                     break
     except KeyboardInterrupt:
         print("Session stopped.")

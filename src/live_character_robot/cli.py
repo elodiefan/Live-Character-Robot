@@ -23,6 +23,7 @@ from live_character_robot.simulator import (
     load_robot_model,
 )
 from live_character_robot.transcription import transcribe_file
+from live_character_robot.voice import MOTION_RESPONSES, start_speech
 from live_character_robot.voice_commands import resolve_voice_command
 
 
@@ -167,7 +168,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         model = load_robot_model()
         specs = joint_specs(model)
         poses = tuple(pose_vector(pose, specs) for pose in MOTIONS[motion])
+        speech = start_speech(MOTION_RESPONSES[motion])
         animate_poses(model, poses, hold_seconds=1.5)
+        speech.wait()
         return 0
 
     if args.command == "session":
