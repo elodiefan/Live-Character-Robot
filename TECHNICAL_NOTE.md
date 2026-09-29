@@ -10,7 +10,7 @@ becomes either a fixed motion command, a scene-memory operation, or a structured
 color goal. Only the deterministic controller writes simulated joint state.
 
 ```text
-Camera -> engagement / object observation --+ 
+Camera -> engagement / object observation --+
                                              +-> controller <-> scene memory
 Mic -> local transcription -> bounded intent-+       |
                                                      v
