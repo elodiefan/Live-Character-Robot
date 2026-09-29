@@ -49,3 +49,19 @@ def test_scene_memory_recalls_latest_color() -> None:
     memory.remember(ObjectObservation(color="green", confidence=0.8))
 
     assert memory.color_answer() == "The object was green."
+
+
+def test_observes_target_position_across_full_frame() -> None:
+    """Goal perception should retain where the requested object appears."""
+    hsv = np.zeros((200, 300, 3), dtype=np.uint8)
+    hsv[60:140, 15:95] = (110, 255, 255)
+    frame = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+    observation = observe_colored_object(
+        frame,
+        center_only=False,
+        target_color="blue",
+    )
+
+    assert observation is not None
+    assert observation.horizontal_position == "left"

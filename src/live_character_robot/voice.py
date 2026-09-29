@@ -6,6 +6,8 @@ import shutil
 import subprocess
 
 MOTION_RESPONSES: dict[str, str] = {
+    "look-left": "Looking left.",
+    "look-right": "Looking right.",
     "look-up": "Looking up.",
     "nod": "Hello there.",
     "shake": "No.",

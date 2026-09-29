@@ -8,6 +8,7 @@ import mujoco
 import mujoco.viewer
 
 from live_character_robot.audio import record_microphone, write_wav
+from live_character_robot.goals import parse_scene_goal, plan_scene_goal
 from live_character_robot.motion import MOTIONS, REST_POSE, pose_vector
 from live_character_robot.scene import (
     SceneMemory,
@@ -53,6 +54,60 @@ def run_interaction_session(
 
                 transcript = transcribe_file(recording_path)
                 print(f"You said: {transcript}")
+                goal = parse_scene_goal(transcript)
+                if goal is not None:
+                    print(f"Looking for a {goal.target_color} object...")
+                    observation = observe_colored_object(
+                        capture_camera_frame(),
+                        center_only=False,
+                        target_color=goal.target_color,
+                    )
+                    actions = plan_scene_goal(goal, observation)
+                    if not actions:
+                        response = f"I could not find a {goal.target_color} object."
+                        print(f"Lamp response: {response}")
+                        start_speech(response).wait()
+                        continue
+
+                    position_phrase = (
+                        "in front of me"
+                        if observation.horizontal_position == "center"
+                        else f"on my {observation.horizontal_position}"
+                    )
+                    response = (
+                        f"I found the {goal.target_color} object {position_phrase}."
+                    )
+                    print(f"Plan: {' -> '.join(actions)}")
+                    speech = start_speech(response)
+                    viewer_open = True
+                    for action in actions:
+                        targets = tuple(
+                            pose_vector(pose, specs) for pose in MOTIONS[action]
+                        )
+                        viewer_open = animate_targets(model, data, viewer, targets)
+                        if not viewer_open:
+                            break
+                    speech.wait()
+                    if not viewer_open:
+                        break
+
+                    print("Observing the scene again before completion...")
+                    final_observation = observe_colored_object(
+                        capture_camera_frame(),
+                        center_only=False,
+                        target_color=goal.target_color,
+                    )
+                    if final_observation is None:
+                        completion = "I cannot confirm the object is still visible."
+                    else:
+                        completion = (
+                            f"Inspection complete. The {goal.target_color} object "
+                            "is still visible."
+                        )
+                    print(f"Lamp response: {completion}")
+                    start_speech(completion).wait()
+                    continue
+
                 scene_command = resolve_scene_command(transcript)
                 response = None
                 motion = None

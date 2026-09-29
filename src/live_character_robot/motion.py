@@ -50,7 +50,19 @@ SLEEP_POSES: tuple[Pose, ...] = (
     },
 )
 
+LOOK_LEFT_POSES: tuple[Pose, ...] = (
+    REST_POSE,
+    {**REST_POSE, "base_yaw_joint": 0.75},
+)
+
+LOOK_RIGHT_POSES: tuple[Pose, ...] = (
+    REST_POSE,
+    {**REST_POSE, "base_yaw_joint": -0.75},
+)
+
 MOTIONS: dict[str, tuple[Pose, ...]] = {
+    "look-left": LOOK_LEFT_POSES,
+    "look-right": LOOK_RIGHT_POSES,
     "look-up": LOOK_UP_POSES,
     "nod": NOD_POSES,
     "shake": SHAKE_POSES,

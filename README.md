@@ -187,6 +187,14 @@ this object`. Keep it visible while the camera captures a frame. Later, ask
 `what color was the object?` The compact color observation remains in memory
 only for the current session; camera frames are neither saved nor transmitted.
 
+To demonstrate grounded goal-directed action, hold a supported colored object
+to the left, center, or right of the camera and say `inspect the blue object`
+(using its actual color). The controller observes the requested target, plans
+only from predefined safe motions, executes the sequence, and captures a second
+camera observation before reporting completion. Keep the object visible until
+the final spoken confirmation. Left and right are reported from the character's
+camera perspective, so they are opposite the facing person's sides.
+
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
 local recordings under `recordings/` are excluded from Git.

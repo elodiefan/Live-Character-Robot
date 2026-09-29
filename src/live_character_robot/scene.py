@@ -18,6 +18,7 @@ class ObjectObservation:
 
     color: str
     confidence: float
+    horizontal_position: str = "center"
 
 
 @dataclass
@@ -37,10 +38,20 @@ class SceneMemory:
         return f"The object was {self.last_object.color}."
 
 
-def observe_colored_object(frame: NDArray[np.uint8]) -> ObjectObservation | None:
-    """Identify the dominant saturated color in the center of a BGR frame."""
+def observe_colored_object(
+    frame: NDArray[np.uint8],
+    *,
+    center_only: bool = True,
+    target_color: str | None = None,
+) -> ObjectObservation | None:
+    """Identify a saturated colored object and its horizontal position."""
     height, width = frame.shape[:2]
-    region = frame[height // 4 : 3 * height // 4, width // 4 : 3 * width // 4]
+    x_offset = width // 4 if center_only else 0
+    region = (
+        frame[height // 4 : 3 * height // 4, x_offset : 3 * width // 4]
+        if center_only
+        else frame
+    )
     hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
     hue = hsv[:, :, 0]
     saturation = hsv[:, :, 1]
@@ -55,11 +66,29 @@ def observe_colored_object(frame: NDArray[np.uint8]) -> ObjectObservation | None
         "blue": visible & (hue >= 86) & (hue <= 115),
         "purple": visible & (hue >= 116) & (hue <= 169),
     }
-    color, mask = max(masks.items(), key=lambda item: np.count_nonzero(item[1]))
+    if target_color is not None:
+        if target_color not in masks:
+            raise ValueError(f"Unsupported target color: {target_color}")
+        color, mask = target_color, masks[target_color]
+    else:
+        color, mask = max(masks.items(), key=lambda item: np.count_nonzero(item[1]))
     confidence = float(np.count_nonzero(mask) / mask.size)
-    if confidence < MIN_COLOR_FRACTION:
+    minimum_fraction = MIN_COLOR_FRACTION if center_only else 0.02
+    if confidence < minimum_fraction:
         return None
-    return ObjectObservation(color=color, confidence=confidence)
+    _, x_coordinates = np.nonzero(mask)
+    center_x = float(x_coordinates.mean() + x_offset)
+    if center_x < width * 0.4:
+        position = "left"
+    elif center_x > width * 0.6:
+        position = "right"
+    else:
+        position = "center"
+    return ObjectObservation(
+        color=color,
+        confidence=confidence,
+        horizontal_position=position,
+    )
 
 
 def capture_camera_frame(camera_index: int = 0) -> NDArray[np.uint8]:
