@@ -181,6 +181,28 @@ The session listens in bounded five-second turns. Close the viewer or press
 offline spoken response through macOS `say`. On Ubuntu, install `espeak-ng` to
 enable the same local voice output.
 
+### Spoken command reference
+
+Wait for `Listening for 5 seconds...`, then say one phrase clearly. The matcher
+also accepts these phrases inside a longer polite sentence.
+
+| Say | Character response |
+| --- | --- |
+| `hello`, `hi`, or `yes` | Nods and says “Hello there.” |
+| `no` or `say no` | Shakes its head and says “No.” |
+| `look up` | Tilts its head upward and says “Looking up.” |
+| `go to sleep` or `good night` | Lowers into a sleep pose and says “Good night.” |
+| `remember this object` | Observes a centrally held colored object, remembers its color, nods, and plays an acknowledgment sound. |
+| `what color was the object?` | Recalls and speaks the last remembered color. |
+| `what was the color of the object?` | Performs the same color recall using alternate wording. |
+| `what’s the color of it?` | Performs the same color recall using conversational wording. |
+| `inspect the blue object` | Finds the requested color, turns toward it, nods, observes again, and reports completion. Replace `blue` with the visible supported color. |
+| `find the purple object` | Runs the same goal-directed sequence using alternate wording. |
+
+Supported object colors are `red`, `orange`, `yellow`, `green`, `blue`, and
+`purple`. Unsupported or unrecognized speech causes no motion. Scene-memory and
+goal phrases require the object to remain visible during camera observation.
+
 To demonstrate short-term scene memory, hold a bright red, orange, yellow,
 green, blue, or purple object near the center of the camera and say `remember
 this object`. Keep it visible while the camera captures a frame. Later, ask
@@ -221,6 +243,22 @@ live-character-robot measure-engagement --trials 3
 Follow each terminal prompt and press Enter only after looking directly at the
 camera or fully turning away. Machine-readable results are saved under
 `measurements/` for inclusion in the technical note.
+
+### Development measurement interpretation
+
+On the measured Apple Silicon development machine, warm speech-to-intent
+latency was approximately `0.42 s`; the first run took `1.156 s` while local
+components initialized. Mean latency across three runs was `0.6683 s`. Peak
+memory was `529.9 MiB`, and CPU use averaged roughly `2.4` cores. These results
+fit the four-core, 8 GB target on paper, but must still be verified on the
+actual Ubuntu laptop. The guided engagement test achieved `100%` across 360
+frames and three trials; this is a small controlled result, not a claim of
+general reliability across people, lighting, cameras, or environments.
+
+Cloud perception is optional under the challenge brief. This implementation
+stays local to avoid usage cost, network dependence, and camera/audio transfer.
+The tradeoff is a deliberately bounded vocabulary and six-color object model
+instead of open-ended language and visual recognition.
 
 The first transcription downloads the English `base.en` speech model. Later
 runs use the local cache and can work offline. Audio remains on the laptop, and
