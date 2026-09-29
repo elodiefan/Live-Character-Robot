@@ -311,7 +311,3 @@ and limitations.
 ## Challenge documents
 
 See [CHALLENGE.md](CHALLENGE.md) for the full requirements and [SUBMISSION.md](SUBMISSION.md) for the required deliverables and evaluation criteria.
-
-## AI-assisted development
-
-AI-assisted development tools may be used during implementation. The final submission will document the architecture, behavior, measurements, data handling, technical decisions, and known limitations, and all generated code will be reviewed and tested.
