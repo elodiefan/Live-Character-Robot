@@ -311,3 +311,11 @@ and limitations.
 ## Challenge documents
 
 See [CHALLENGE.md](CHALLENGE.md) for the full requirements and [SUBMISSION.md](SUBMISSION.md) for the required deliverables and evaluation criteria.
+
+## Materials provided by Human Computer Lab
+
+Human Computer Lab provided the challenge brief, submission requirements, the
+five-DOF lamp URDF, the lamp reference image, and the lamp-shade STL mesh. The
+application architecture, simulation integration, perception, interaction,
+motion, audio, testing, measurements, and documentation were developed for
+this submission.
