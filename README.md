@@ -44,6 +44,24 @@ The action vocabulary is intentionally small:
 - `SPEAK`, `PLAY_SFX`, and `PLAY_MUSIC`
 - `OBSERVE_SCENE` and `REMEMBER_OBJECT`
 
+## Design choices and tradeoffs
+
+The supplied URDF describes the lamp's links, joints, geometry, and limits; it
+does not prescribe the simulator, perception stack, interaction protocol,
+planner, memory model, or controller. Those software boundaries were selected
+for this implementation.
+
+| Choice | Why it fits | Tradeoff |
+| --- | --- | --- |
+| MuJoCo simulation | Imports the five-DOF model, exposes joint limits, and provides an interactive CPU-capable viewer. | The simulation does not validate real actuator dynamics, collision safety, or physical lighting. |
+| Deterministic named actions | Language and vision select only predefined, joint-limited motions, keeping body execution explainable and safe. | The lamp cannot invent arbitrary movements or understand unrestricted goals. |
+| Local `faster-whisper` speech recognition | Avoids API cost and audio upload, works from a local model cache, and meets the CPU-only target. | Model initialization adds latency and transcription consumes noticeable CPU. |
+| Fixed phrase and goal parsing | Produces predictable behavior that is straightforward to test and demonstrate. | Natural-language coverage is intentionally narrower than a cloud language model. |
+| Local HSV color observation | Runs quickly without a GPU or cloud image transfer. | Supports six colors and is sensitive to lighting, exposure, saturation, and color boundaries. |
+| One-item in-memory scene memory | Keeps the demonstration private, bounded, and easy to reason about. | Memory disappears when the session ends and cannot recall multiple objects. |
+| Shared camera engagement monitor | Makes engagement, object observation, and disengagement part of one continuous character session. | Frontal-face detection can be affected by glare, occlusion, pose, and camera quality. |
+| Operating-system voice plus synthesized audio | Provides offline voice, sound effects, and music without bundled copyrighted media. | Voice quality and available speech engines differ between macOS and Ubuntu. |
+
 ## Robot model
 
 The supplied URDF defines five controllable revolute joints:
