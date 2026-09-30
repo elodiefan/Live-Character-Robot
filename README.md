@@ -346,6 +346,36 @@ and limitations.
 - [ ] Test setup on the Ubuntu target
 - [x] Complete the two-page technical note
 
+## Completed and intentionally left out
+
+### Completed
+
+- One continuous camera-engagement-to-disengagement character demo
+- Five-DOF MuJoCo simulation with validated joint limits and safe named motions
+- Local microphone recording, speech transcription, and offline voice output
+- Camera-based engagement detection with dwell-time stabilization
+- One-object color observation, short-term recall, and spoken answers
+- Spoken scene goals, deterministic action planning, and post-action observation
+- Purposeful motion, shade light pulse, voice, sound effect, and music
+- Graceful handling for silence and unavailable camera, microphone, or audio
+- Automated tests plus latency, CPU, memory, and engagement measurements
+- Ubuntu 24.04 setup guidance and a verified two-page technical note
+
+### Intentionally left out
+
+- Physical robot actuation, hardware safety systems, and real-world dynamics
+- Open-ended cloud vision or language APIs; the prototype stays local and bounded
+- General object recognition beyond six heuristic color categories
+- Multiple-object, persistent, or cross-session memory
+- Unrestricted conversation and model-generated joint trajectories
+- Photometrically accurate simulated light output
+- Validation on physical Ubuntu 24.04 hardware, which remains documented as a
+  deployment limitation
+
+These exclusions keep the implementation coherent, explainable, private, and
+appropriate for the challenge timebox rather than presenting partially finished
+features.
+
 ## Challenge documents
 
 See [CHALLENGE.md](CHALLENGE.md) for the full requirements and [SUBMISSION.md](SUBMISSION.md) for the required deliverables and evaluation criteria.
