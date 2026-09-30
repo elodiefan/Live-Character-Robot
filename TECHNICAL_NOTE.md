@@ -71,9 +71,11 @@ A physical robot would additionally require actuator feedback, velocity and
 acceleration enforcement, collision limits, an emergency stop, watchdogs, and
 a hardware-specific controller.
 
-Known limitations: color segmentation depends on lighting and supports only six
-colors; face detection is frontal and may degrade with glare, occlusion, or dim
-light; speech uses fixed English phrases and five-second turns; memory is
+Known limitations: fixed HSV color segmentation supports only six colors and is
+sensitive to exposure, lighting, shadows, reflections, and background colors.
+Pale or low-saturation objects and hues near yellow/orange or blue/purple
+boundaries may be misclassified. Face detection is frontal and may degrade with
+glare, occlusion, or dim light; speech uses fixed English phrases and five-second turns; memory is
 single-object and nonpersistent; the camera and simulated lamp do not share a
 calibrated physical frame; the shade pulse is visual rather than photometric;
 and Ubuntu behavior remains to be verified on the final target laptop.

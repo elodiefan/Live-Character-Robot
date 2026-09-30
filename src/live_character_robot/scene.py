@@ -56,15 +56,19 @@ def observe_colored_object(
     hue = hsv[:, :, 0]
     saturation = hsv[:, :, 1]
     value = hsv[:, :, 2]
-    visible = (saturation >= 90) & (value >= 60)
+    # Most colors need moderate saturation to reject skin and neutral
+    # backgrounds. Blue gets a lower, hue-constrained floor because pale blue
+    # objects can have very little chroma under indoor camera exposure.
+    visible = (saturation >= 45) & (value >= 60)
+    pale_blue_visible = (saturation >= 8) & (value >= 60)
 
     masks = {
         "red": visible & ((hue <= 10) | (hue >= 170)),
-        "orange": visible & (hue >= 11) & (hue <= 24),
-        "yellow": visible & (hue >= 25) & (hue <= 37),
+        "orange": visible & (hue >= 11) & (hue <= 19),
+        "yellow": visible & (hue >= 20) & (hue <= 37),
         "green": visible & (hue >= 38) & (hue <= 85),
-        "blue": visible & (hue >= 86) & (hue <= 115),
-        "purple": visible & (hue >= 116) & (hue <= 169),
+        "blue": pale_blue_visible & (hue >= 86) & (hue <= 116),
+        "purple": visible & (hue >= 117) & (hue <= 169),
     }
     if target_color is not None:
         if target_color not in masks:
@@ -109,3 +113,27 @@ def capture_camera_frame(camera_index: int = 0) -> NDArray[np.uint8]:
         return frame
     finally:
         camera.release()
+
+
+def color_diagnostics(frame: NDArray[np.uint8]) -> dict[str, float]:
+    """Summarize center-region color values without retaining the camera frame."""
+    height, width = frame.shape[:2]
+    region = frame[height // 3 : 2 * height // 3, width // 3 : 2 * width // 3]
+    hsv = cv2.cvtColor(region, cv2.COLOR_BGR2HSV)
+    hue = hsv[:, :, 0]
+    saturation = hsv[:, :, 1]
+    value = hsv[:, :, 2]
+    colored = saturation >= 20
+    if not np.any(colored):
+        return {
+            "median_hue": 0.0,
+            "median_saturation": float(np.median(saturation)),
+            "median_value": float(np.median(value)),
+            "colored_fraction": 0.0,
+        }
+    return {
+        "median_hue": float(np.median(hue[colored])),
+        "median_saturation": float(np.median(saturation[colored])),
+        "median_value": float(np.median(value[colored])),
+        "colored_fraction": float(np.count_nonzero(colored) / colored.size),
+    }

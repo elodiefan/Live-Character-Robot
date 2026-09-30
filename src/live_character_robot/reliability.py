@@ -32,11 +32,12 @@ def observe_safely(
     *,
     center_only: bool = True,
     target_color: str | None = None,
+    frame: NDArray[np.uint8] | None = None,
 ) -> ObjectObservation | None:
     """Return no observation when the local camera cannot provide a frame."""
     try:
         return observe_colored_object(
-            capture_camera_frame(),
+            capture_camera_frame() if frame is None else frame,
             center_only=center_only,
             target_color=target_color,
         )

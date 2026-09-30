@@ -6,14 +6,15 @@ import numpy as np
 from live_character_robot.scene import (
     ObjectObservation,
     SceneMemory,
+    color_diagnostics,
     observe_colored_object,
 )
 
 
-def colored_frame(hue: int) -> np.ndarray:
+def colored_frame(hue: int, saturation: int = 255) -> np.ndarray:
     """Create a synthetic frame with a large colored center object."""
     hsv = np.zeros((200, 200, 3), dtype=np.uint8)
-    hsv[50:150, 50:150] = (hue, 255, 255)
+    hsv[50:150, 50:150] = (hue, saturation, 255)
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
 
@@ -32,6 +33,25 @@ def test_observes_purple_center_object() -> None:
 
     assert observation is not None
     assert observation.color == "purple"
+
+
+def test_observes_light_blue_center_object() -> None:
+    """A pale blue object should remain visible below the old saturation floor."""
+    observation = observe_colored_object(colored_frame(hue=115, saturation=20))
+
+    assert observation is not None
+    assert observation.color == "blue"
+
+
+def test_distinguishes_warm_yellow_from_orange() -> None:
+    """Camera-warmed yellow and true orange should fall on opposite boundaries."""
+    yellow = observe_colored_object(colored_frame(hue=22))
+    orange = observe_colored_object(colored_frame(hue=16))
+
+    assert yellow is not None
+    assert orange is not None
+    assert yellow.color == "yellow"
+    assert orange.color == "orange"
 
 
 def test_ignores_frame_without_saturated_object() -> None:
@@ -65,3 +85,14 @@ def test_observes_target_position_across_full_frame() -> None:
 
     assert observation is not None
     assert observation.horizontal_position == "left"
+
+
+def test_color_diagnostics_reports_pale_center_object() -> None:
+    """Diagnostics should expose low-saturation object values for calibration."""
+    frame = colored_frame(hue=105, saturation=35)
+
+    diagnostics = color_diagnostics(frame)
+
+    assert diagnostics["median_hue"] == 105.0
+    assert diagnostics["median_saturation"] == 35.0
+    assert diagnostics["colored_fraction"] == 1.0

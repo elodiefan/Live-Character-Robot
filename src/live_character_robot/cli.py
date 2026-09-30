@@ -14,6 +14,7 @@ from live_character_robot.audio import (
     write_wav,
 )
 from live_character_robot.camera import run_engagement_camera
+from live_character_robot.demo import run_integrated_demo
 from live_character_robot.interaction import run_interaction_session
 from live_character_robot.measurements import (
     format_results,
@@ -21,6 +22,7 @@ from live_character_robot.measurements import (
     measure_runtime,
 )
 from live_character_robot.motion import MOTIONS, pose_vector
+from live_character_robot.scene import capture_camera_frame, color_diagnostics
 from live_character_robot.simulator import (
     animate_poses,
     joint_specs,
@@ -57,6 +59,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=0,
         help="Camera device index (default: 0).",
     )
+    color_parser = subparsers.add_parser(
+        "inspect-color", help="Print center-region color values without saving a frame."
+    )
+    color_parser.add_argument("--camera-index", type=int, default=0)
     subparsers.add_parser("audio-devices", help="List microphone and speaker devices.")
     microphone_parser = subparsers.add_parser(
         "microphone", help="Record a bounded microphone test clip."
@@ -124,6 +130,16 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("measurements/engagement.json"),
     )
+    demo_parser = subparsers.add_parser(
+        "demo", help="Run one engagement-to-disengagement character interaction."
+    )
+    demo_parser.add_argument("--seconds", type=float, default=5.0)
+    demo_parser.add_argument("--camera-index", type=int, default=0)
+    demo_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("recordings/latest-command.wav"),
+    )
     return parser
 
 
@@ -152,6 +168,14 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.command == "camera":
         run_engagement_camera(args.index)
+        return 0
+
+    if args.command == "inspect-color":
+        print("Hold the object in the center of the camera for two seconds...")
+        diagnostics = color_diagnostics(capture_camera_frame(args.camera_index))
+        for name, value in diagnostics.items():
+            print(f"{name}: {value:.3f}")
+        print("No camera frame was saved.")
         return 0
 
     if args.command == "audio-devices":
@@ -222,6 +246,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         print(format_results(results))
         print(f"Saved results to {args.output}")
+        return 0
+
+    if args.command == "demo":
+        run_integrated_demo(
+            args.seconds,
+            camera_index=args.camera_index,
+            recording_path=args.output,
+        )
         return 0
 
     print("Live Character Robot scaffold is ready.")

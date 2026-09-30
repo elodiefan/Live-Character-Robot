@@ -275,8 +275,10 @@ def build() -> None:
         ),
         Paragraph("Known limitations", heading),
         Paragraph(
-            "<b>Perception:</b> color segmentation depends on lighting and supports six "
-            "colors; frontal-face detection may degrade with glare, occlusion, or dim light. "
+            "<b>Perception:</b> fixed HSV segmentation supports six colors and varies with "
+            "exposure, lighting, shadows, reflections, and background. Pale or low-saturation "
+            "objects and yellow/orange or blue/purple boundary hues may be misclassified. "
+            "Frontal-face detection may degrade with glare, occlusion, or dim light. "
             "<b>Interaction:</b> fixed English phrases, five-second turns, one nonpersistent "
             "memory item, and no calibrated transform between camera and simulated lamp. "
             "<b>Simulation:</b> shade pulse is visual rather than photometric; no hardware "

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import mujoco
 import mujoco.viewer
@@ -36,11 +37,16 @@ from live_character_robot.voice_commands import (
     resolve_voice_command,
 )
 
+if TYPE_CHECKING:
+    from live_character_robot.live_camera import CameraMonitor
+
 
 def run_interaction_session(
     duration_seconds: float = 5.0,
     *,
     recording_path: Path = Path("recordings/latest-command.wav"),
+    camera_monitor: CameraMonitor | None = None,
+    acknowledge_engagement: bool = False,
 ) -> None:
     """Keep one viewer open while listening and reacting to bounded clips."""
     model = load_robot_model()
@@ -51,10 +57,43 @@ def run_interaction_session(
     mujoco.mj_forward(model, data)
     memory = SceneMemory()
 
+    def observe_current(
+        *,
+        center_only: bool = True,
+        target_color: str | None = None,
+    ):
+        if camera_monitor is None:
+            return observe_safely(
+                center_only=center_only,
+                target_color=target_color,
+            )
+        with camera_monitor.pause_engagement_tracking():
+            return observe_safely(
+                center_only=center_only,
+                target_color=target_color,
+                frame=camera_monitor.latest_frame(),
+            )
+
     print("Continuous session started. Close the viewer or press Ctrl+C to stop.")
     try:
         with mujoco.viewer.launch_passive(model, data) as viewer:
+            if acknowledge_engagement:
+                greeting = "Hello! I am ready to interact."
+                speech = start_speech_safely(greeting)
+                greeting_targets = tuple(
+                    pose_vector(pose, specs) for pose in MOTIONS["nod"]
+                )
+                if not animate_targets(model, data, viewer, greeting_targets):
+                    return
+                wait_for_speech(speech)
             while viewer.is_running():
+                if camera_monitor is not None and camera_monitor.disengaged:
+                    farewell = "I will return to idle now."
+                    speech = start_speech_safely(farewell)
+                    animate_targets(model, data, viewer, (rest,))
+                    wait_for_speech(speech)
+                    print("Attention moved away. Character returned to idle.")
+                    break
                 print(f"Listening for {duration_seconds:g} seconds...")
                 try:
                     samples = record_microphone(duration_seconds)
@@ -68,11 +107,13 @@ def run_interaction_session(
                 transcript = transcribe_safely(recording_path)
                 if transcript is None:
                     continue
+                if camera_monitor is not None:
+                    camera_monitor.mark_active_interaction()
                 print(f"You said: {transcript}")
                 goal = parse_scene_goal(transcript)
                 if goal is not None:
                     print(f"Looking for a {goal.target_color} object...")
-                    observation = observe_safely(
+                    observation = observe_current(
                         center_only=False,
                         target_color=goal.target_color,
                     )
@@ -81,6 +122,8 @@ def run_interaction_session(
                         response = f"I could not find a {goal.target_color} object."
                         print(f"Lamp response: {response}")
                         wait_for_speech(start_speech_safely(response))
+                        if camera_monitor is not None:
+                            camera_monitor.mark_active_interaction()
                         continue
 
                     position_phrase = (
@@ -106,7 +149,7 @@ def run_interaction_session(
                         break
 
                     print("Observing the scene again before completion...")
-                    final_observation = observe_safely(
+                    final_observation = observe_current(
                         center_only=False,
                         target_color=goal.target_color,
                     )
@@ -134,6 +177,8 @@ def run_interaction_session(
                         wait_for_audio_safely(audio_started)
                         if not viewer_open:
                             break
+                    if camera_monitor is not None:
+                        camera_monitor.mark_active_interaction()
                     continue
 
                 scene_command = resolve_scene_command(transcript)
@@ -141,7 +186,7 @@ def run_interaction_session(
                 motion = None
                 if scene_command == "remember-object":
                     print("Observing the object in the center of the camera...")
-                    observation = observe_safely()
+                    observation = observe_current()
                     if observation is None:
                         response = "I could not see a clearly colored object."
                     else:
@@ -161,6 +206,8 @@ def run_interaction_session(
                         continue
                     print(f"Lamp response: {response}")
                     wait_for_speech(start_speech_safely(response))
+                    if camera_monitor is not None:
+                        camera_monitor.mark_active_interaction()
                     continue
 
                 print(f"Lamp response: {motion}")
@@ -170,6 +217,8 @@ def run_interaction_session(
                 speech = start_speech_safely(response or MOTION_RESPONSES[motion])
                 viewer_open = animate_targets(model, data, viewer, targets)
                 wait_for_speech(speech)
+                if camera_monitor is not None:
+                    camera_monitor.mark_active_interaction()
                 if not viewer_open:
                     break
     except KeyboardInterrupt:

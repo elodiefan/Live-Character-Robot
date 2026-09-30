@@ -51,7 +51,7 @@ the desktop session with access to `/dev/video*` and local PipeWire/PulseAudio.
 Unlike macOS, Ubuntu does not require MuJoCo's `mjpython` launcher:
 
 ```bash
-live-character-robot session --seconds 5
+live-character-robot demo --seconds 5
 ```
 
 Suggested demonstration sequence:

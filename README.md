@@ -176,6 +176,18 @@ Keep one simulator window open and respond to multiple spoken commands:
 .venv/bin/mjpython -m live_character_robot session --seconds 5
 ```
 
+Run the complete engagement-to-disengagement demonstration on macOS:
+
+```bash
+.venv/bin/mjpython -m live_character_robot demo --seconds 5
+```
+
+Look directly at the Mac camera until the character greets you. Use the spoken
+commands below while remaining visible. When finished, look fully away or leave
+the frame; after stable absence, the character returns to idle and the demo
+ends. The integrated demo owns one shared camera stream for engagement and
+scene observation, and never saves camera frames.
+
 The session listens in bounded five-second turns. Close the viewer or press
 `Ctrl+C` in the terminal to stop. Recognized commands also receive a short
 offline spoken response through macOS `say`. On Ubuntu, install `espeak-ng` to
@@ -202,6 +214,14 @@ also accepts these phrases inside a longer polite sentence.
 Supported object colors are `red`, `orange`, `yellow`, `green`, `blue`, and
 `purple`. Unsupported or unrecognized speech causes no motion. Scene-memory and
 goal phrases require the object to remain visible during camera observation.
+
+> **Color-recognition limitation:** Object color is estimated with fixed HSV
+> ranges rather than a learned vision model. Results vary with camera exposure,
+> shadows, reflections, background colors, and indoor lighting. Pale or
+> low-saturation objects such as light blue can be mistaken for another color,
+> and colors near a category boundary (especially yellow/orange and blue/purple)
+> may be confused. For the most reliable demonstration, use a large, brightly
+> saturated object in even lighting and hold it near the center of the frame.
 
 To demonstrate short-term scene memory, hold a bright red, orange, yellow,
 green, blue, or purple object near the center of the camera and say `remember
