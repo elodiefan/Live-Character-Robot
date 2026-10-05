@@ -30,12 +30,18 @@ def synthesize_tones(
 
 def acknowledgment_sound() -> NDArray[np.int16]:
     """Return a short rising two-note object-memory acknowledgment."""
-    return synthesize_tones(((660.0, 0.10), (880.0, 0.14)))
+    return synthesize_tones(
+        ((660.0, 0.20), (880.0, 0.28)),
+        volume=0.42,
+    )
 
 
 def success_music() -> NDArray[np.int16]:
-    """Return a brief three-note musical goal-completion cue."""
-    return synthesize_tones(((523.25, 0.16), (659.25, 0.16), (783.99, 0.28)))
+    """Return a clear three-note musical goal-completion cue."""
+    return synthesize_tones(
+        ((523.25, 0.30), (659.25, 0.30), (783.99, 0.55)),
+        volume=0.48,
+    )
 
 
 def start_audio(samples: NDArray[np.int16]) -> None:
