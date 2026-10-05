@@ -127,3 +127,6 @@ def animate_targets(
         return viewer.is_running()
     finally:
         model.geom_rgba[shade_geom_id] = original_shade_color
+        mujoco.mj_forward(model, data)
+        if viewer.is_running():
+            viewer.sync()
