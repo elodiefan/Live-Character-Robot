@@ -26,6 +26,8 @@ SCENE_COMMAND_PHRASES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ),
 )
 
+FAREWELL_PHRASES = ("goodbye", "good bye", "bye bye", "bye")
+
 
 def resolve_voice_command(transcript: str) -> str | None:
     """Return the motion associated with a recognized phrase, if any."""
@@ -46,3 +48,10 @@ def resolve_scene_command(transcript: str) -> str | None:
         if any(f" {phrase} " in padded for phrase in phrases):
             return command
     return None
+
+
+def is_farewell_command(transcript: str) -> bool:
+    """Return whether speech explicitly asks to end the interaction."""
+    normalized = " ".join(re.findall(r"[a-z]+", transcript.lower()))
+    padded = f" {normalized} "
+    return any(f" {phrase} " in padded for phrase in FAREWELL_PHRASES)

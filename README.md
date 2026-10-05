@@ -213,21 +213,20 @@ enable the same local voice output.
 
 ### Spoken command reference
 
-Wait for `Listening for 5 seconds...`, then say one phrase clearly. The matcher
-also accepts these phrases inside a longer polite sentence.
+Wait for `Listening for 5 seconds...`, then say one of the exact phrases below
+clearly. Other wording may not be recognized reliably by the offline speech
+transcriber and command matcher.
 
 | Say | Character response |
 | --- | --- |
-| `hello`, `hi`, or `yes` | Nods and says “Hello there.” |
-| `no` or `say no` | Shakes its head and says “No.” |
+| `hello` | Nods and says “Hello there.” |
+| `no` | Shakes its head and says “No.” |
 | `look up` | Tilts its head upward and says “Looking up.” |
-| `go to sleep` or `good night` | Lowers into a sleep pose and says “Good night.” |
+| `go to sleep` | Lowers into a sleep pose and says “Good night.” |
 | `remember this object` | Observes a centrally held colored object, remembers its color, nods, and plays an acknowledgment sound. |
-| `what color was the object?` | Recalls and speaks the last remembered color. |
-| `what was the color of the object?` | Performs the same color recall using alternate wording. |
-| `what’s the color of it?` | Performs the same color recall using conversational wording. |
-| `inspect the blue object` | Finds the requested color, turns toward it, nods, observes again, and reports completion. Replace `blue` with the visible supported color. |
-| `find the purple object` | Runs the same goal-directed sequence using alternate wording. |
+| `what was the color of the object?` | Recalls and speaks the last remembered color. |
+| `inspect the yellow object` | Finds the requested color, turns toward it, nods, observes again, and reports completion. Replace `yellow` with the color the camera recognizes. |
+| `goodbye` | Says goodbye, performs a farewell movement, returns to idle, and closes the session. |
 
 Supported object colors are `red`, `orange`, `yellow`, `green`, `blue`, and
 `purple`. Unsupported or unrecognized speech causes no motion. Scene-memory and

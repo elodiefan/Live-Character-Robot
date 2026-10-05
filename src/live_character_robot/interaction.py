@@ -33,6 +33,7 @@ from live_character_robot.simulator import (
 )
 from live_character_robot.voice import MOTION_RESPONSES
 from live_character_robot.voice_commands import (
+    is_farewell_command,
     resolve_scene_command,
     resolve_voice_command,
 )
@@ -110,6 +111,24 @@ def run_interaction_session(
                 if camera_monitor is not None:
                     camera_monitor.mark_active_interaction()
                 print(f"You said: {transcript}")
+                if is_farewell_command(transcript):
+                    farewell = "Goodbye! I will return to idle now."
+                    print(f"Lamp response: {farewell}")
+                    speech = start_speech_safely(farewell)
+                    farewell_targets = tuple(
+                        pose_vector(pose, specs) for pose in MOTIONS["sleep"]
+                    )
+                    viewer_open = animate_targets(
+                        model,
+                        data,
+                        viewer,
+                        (*farewell_targets, rest),
+                    )
+                    wait_for_speech(speech)
+                    print("Farewell recognized. Character returned to idle.")
+                    if not viewer_open:
+                        break
+                    break
                 goal = parse_scene_goal(transcript)
                 if goal is not None:
                     print(f"Looking for a {goal.target_color} object...")

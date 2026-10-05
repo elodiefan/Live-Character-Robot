@@ -3,6 +3,7 @@
 import pytest
 
 from live_character_robot.voice_commands import (
+    is_farewell_command,
     resolve_scene_command,
     resolve_voice_command,
 )
@@ -43,3 +44,18 @@ def test_resolve_voice_command_ignores_unknown_speech(transcript: str) -> None:
 def test_resolve_scene_command(transcript: str, expected: str) -> None:
     """Scene-memory phrases should resolve to bounded memory operations."""
     assert resolve_scene_command(transcript) == expected
+
+
+@pytest.mark.parametrize(
+    "transcript",
+    ("Goodbye!", "Good bye.", "Bye-bye!", "Okay, bye."),
+)
+def test_recognizes_farewell_command(transcript: str) -> None:
+    """Common farewell transcriptions should explicitly end the session."""
+    assert is_farewell_command(transcript)
+
+
+@pytest.mark.parametrize("transcript", ("hello", "good night", "bicycle", ""))
+def test_farewell_command_ignores_other_speech(transcript: str) -> None:
+    """Unrelated speech should not accidentally close the viewer."""
+    assert not is_farewell_command(transcript)
